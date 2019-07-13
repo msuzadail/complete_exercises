@@ -1,0 +1,20 @@
+---
+
+#--------------------------------------------------
+# Install tower, copy apache exercises, copy tower backup file for Tower exercises  
+#--------------------------------------------------
+
+- import_tasks: tower_setup.yml
+- import_tasks: apache_exercises.yml
+- import_tasks: tower_exercises.yml
+
+#--------------------------------------------------
+# Remove install dir 
+#--------------------------------------------------
+
+- name: Remove the temp tower install dir
+  become: yes
+  file:
+    path: /tmp/tower/
+    state: absent
+

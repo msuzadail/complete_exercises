@@ -1,0 +1,40 @@
+---
+#--------------------------------------------------
+# Install workshop Tower backup file
+#--------------------------------------------------
+
+- name: Copy tower backup file
+  become: yes
+  copy: 
+    src: workshop-tower-backup.tgz    
+    dest: /tmp/tower/ansible-tower-setup/workshop-tower-backup.tgz
+
+- name: Copy tower-cli config
+  template:
+    src: tower-cli-cfg.j2
+    dest: /home/{{ system_user }}/.tower_cli.cfg
+
+- name: Install Tower backup
+  become: yes
+  become_user: root
+  command: ./setup.sh -e 'restore_backup_file=workshop-tower-backup.tgz' -r chdir=/tmp/tower/ansible-tower-setup/  
+
+- name: Add workshop hosts to the tower inventory
+  become: yes
+  become_user: root
+  command: tower-manage inventory_import --source=/home/{{ system_user }}/hosts --inventory-name="Ansible Workshop Inventory" 
+
+- name: Add SSH key to Tower Machine credential
+  become: yes
+  become_user: root
+  shell: |
+    tower-cli credential modify \
+    --name "Ansible Workshop Credential" \
+    --organization "Default" \
+    --credential-type "Machine" \
+    --inputs="{\"username\":\"{{ system_user }}\",\"ssh_key_data\":\"$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /home/{{ system_user }}/.ssh/{{ workshop_prefix }}-tower)\n\",\"become_method\":\"sudo\"}"
+ 
+- name: Install workshop STIG galaxy roles for exercise 3
+  become: yes
+  become_user: root
+  command: ansible-galaxy install redhatofficial.rhel7_stig -p /etc/ansible/roles

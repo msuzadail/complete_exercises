@@ -1,0 +1,21 @@
+---
+
+- name: Copy workshop hosts file template
+  template:
+    dest: /home/{{ system_user }}/hosts
+    src: hosts.j2
+    owner: "{{ system_user }}"
+    group: "{{ system_user }}"
+    mode: 644
+
+- name: Copy workshop apache playbooks
+  copy:
+    src: workshop-apache-playbooks.tgz
+    dest: /home/{{ system_user }}/
+
+
+- name: Extract apache playbooks
+  unarchive:
+    src: /home/{{ system_user }}/workshop-apache-playbooks.tgz
+    dest: /home/{{ system_user }}/
+    remote_src: yes
