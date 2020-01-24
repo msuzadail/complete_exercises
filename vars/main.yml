@@ -1,5 +1,7 @@
 ---
 # vars file for complete_exercises
 #
-tower_admin_passwd: "ansibleWS"
+
+username: 
+tower_admin_passwd:
 

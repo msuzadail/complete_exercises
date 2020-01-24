@@ -1,0 +1,52 @@
+---
+
+- name: Ensure SCAP is installed
+  become: yes
+  package:
+    name: scap-security-guide
+    state: present
+
+- name: Create the SCAP project directory
+  become: yes
+  file:
+    path: /var/lib/awx/projects/openscap-ospp
+    state: directory
+    mode: 0755
+    owner: awx
+    group: awx
+
+- name: Run a SCAP scan and create Ansible remediation playbook
+  become: yes
+  become_user: awx
+  shell: |
+    oscap xccdf generate fix --fix-type ansible --profile xccdf_org.ssgproject.content_profile_ospp \
+    --output /var/lib/awx/projects/openscap-ospp/ospp-rhel8.yml \
+    --fetch-remote-resources /usr/share/xml/scap/ssg/content/ssg-rhel8-ds.xml
+
+
+- name: Login to AWX CLI
+  shell: |
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ pw }} login
+
+- name: Create RHEL8 OSPP Workshop Project
+  shell: |
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ pw }} \
+    projects create \
+    --name='Ansible RHEL8 OSPP Project' \
+    --organization "Default" \
+    --local_path "openscap-ospp"
+  ignore_errors: true
+
+
+- name: Create Ansible RHEL8 OSPP Workshop Job Template 
+  shell: |
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ pw }} \
+    job_templates create \
+    --name='RHEL8 OSPP Job Template' \
+    --description "Template for the RHEL8 OSPP Workshop" \
+    --project 'Ansible RHEL8 OSPP Project' \
+    --playbook ospp-rhel8.yml \
+    --inventory 'Ansible Workshop Inventory' \
+    --job_type run --become_enabled true --limit web
+  ignore_errors: true
+

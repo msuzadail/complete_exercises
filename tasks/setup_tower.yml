@@ -1,0 +1,52 @@
+---
+
+- name: Create Ansible Workshop Project
+  shell: |
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ tower_admin_passwd }} \
+    projects create \
+    --name='Ansible Workshop Project' \
+    --orginization "Default" \
+    --scm_type git --scm_url 'https://github.com/ansible/lightbulb' \
+    --scm_clean true --scm_update_on_launch true --scm_delete_on_update true
+  ignore_errors: true
+
+
+- name: Create Ansible Workshop Credential 
+  shell: |
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ tower_admin_passwd }} \
+    credentials create \
+    --name "Ansible Workshop Credential" \
+    --organization "Default" \
+    --credential_type "Machine" \
+    --inputs="{\"username\":\"{{ system_user }}\",\"ssh_key_data\":\"$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /home/{{ system_user }}/.ssh/{{ workshop_prefix }}-tower)\n\",\"become_method\":\"sudo\"}"
+  ignore_errors: true
+
+
+- name: Create Ansible Workshop Inventory
+  shell: |
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ tower_admin_passwd }} \
+    inventory create \
+    --name='Ansible Workshop Inventory' \
+    --description "workshop hosts" \
+    --organization "Default"
+  ignore_errors: true
+
+
+- name: Add workshop hosts to the tower inventory
+  become: yes
+  become_user: root
+  command: tower-manage inventory_import --source=/home/{{ system_user }}/hosts --inventory-name="Ansible Workshop Inventory" 
+
+
+- name: Create Ansible Workshop Job Template 
+  shell: |
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ tower_admin_passwd }} \
+    job_templates create \
+    --name='Apache Basic Job Template' \
+    --description "Template for the apache-basic-playbook" \
+    --project 'Ansible Workshop Project' \
+    --playbook "examples/apache-basic-playbook/site.yml" \
+    --inventory 'Ansible Workshop Inventory' \
+    --job_type run --become_enabled true --limit web
+  ignore_errors: true
+

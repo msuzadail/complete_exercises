@@ -6,7 +6,7 @@
     src: hosts.j2
     owner: "{{ system_user }}"
     group: "{{ system_user }}"
-    mode: 644
+    mode: 0644
 
 - name: Copy workshop apache playbooks
   copy:

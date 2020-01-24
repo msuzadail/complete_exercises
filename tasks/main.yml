@@ -4,9 +4,10 @@
 # Install tower, copy apache exercises, copy tower backup file for Tower exercises  
 #--------------------------------------------------
 
-- import_tasks: tower_setup.yml
-- import_tasks: apache_exercises.yml
-- import_tasks: tower_exercises.yml
+- import_tasks: apache_exercises.yml 
+- import_tasks: install_tower.yml
+- import_tasks: setup_tower.yml
+- import_tasks: oscap_exercise.yml 
 
 #--------------------------------------------------
 # Remove install dir 
