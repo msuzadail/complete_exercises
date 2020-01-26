@@ -26,11 +26,11 @@
 
 - name: Login to AWX CLI
   shell: |
-    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ pw }} login
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ tower_admin_passwd }} login
 
 - name: Create RHEL8 OSPP Workshop Project
   shell: |
-    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ pw }} \
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ tower_admin_passwd }} \
     projects create \
     --name='Ansible RHEL8 OSPP Project' \
     --organization "Default" \
@@ -40,7 +40,7 @@
 
 - name: Create Ansible RHEL8 OSPP Workshop Job Template 
   shell: |
-    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ pw }} \
+    awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ tower_admin_passwd }} \
     job_templates create \
     --name='RHEL8 OSPP Job Template' \
     --description "Template for the RHEL8 OSPP Workshop" \
