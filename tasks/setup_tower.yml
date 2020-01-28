@@ -1,5 +1,18 @@
 ---
 
+- name: Add Tower CLI repo
+  become: yes
+  command: dnf config-manager --add-repo https://releases.ansible.com/ansible-tower/cli/ansible-tower-cli-el8.repo
+
+
+- name: Install Tower CLI
+  become: yes
+  dnf:
+    name: ansible-tower-cli
+    state: present
+    enablerepo: ansible-tower-cli
+
+
 - name: Create Ansible Workshop Project
   shell: |
     awx -k --conf.host https://localhost --conf.username {{ username }} --conf.password {{ tower_admin_passwd }} \
