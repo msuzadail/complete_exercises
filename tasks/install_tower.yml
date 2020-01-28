@@ -15,10 +15,13 @@
     src: http://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-latest.tar.gz
     dest: /tmp/tower
     remote_src: yes
+    creates: /tmp/tower/ansible-tower-setup/
 
 - name: Rename dir to ansible-tower-setup
   become: yes
   shell: mv ansible-tower-setup-*/ ansible-tower-setup chdir=/tmp/tower
+  args: 
+    creates: /tmp/tower/ansible-tower-setup/setup.sh
 
 - name: Template over Ansible Inventory to setup
   become: yes
@@ -30,7 +33,8 @@
   become: yes
   become_user: root
   command: ./setup.sh chdir=/tmp/tower/ansible-tower-setup/  
- 
+  args:
+    creates: /usr/bin/ansible-tower-service 
 #-------------------------------------------------------------------------------------------
 # Request a license from https://www.ansible.com/workshop-license and add it to the files dir
 #--------------------------------------------------------------------------------------------
