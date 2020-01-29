@@ -35,16 +35,8 @@
   command: ./setup.sh chdir=/tmp/tower/ansible-tower-setup/  
   args:
     creates: /usr/bin/ansible-tower-service
-  async: 10800
-  poll: 0
-  register: tower_install_status
-
-- name: 'Check on Tower Install ...'
-  async_status: jid={{ tower_install_status.ansible_job_id }}
-  register: job_result
-  until: job_result.finished
-  delay: 30
-  retries: 180
+  async: 1200
+  poll: 2
 
 #-------------------------------------------------------------------------------------------
 # Request a license from https://www.ansible.com/workshop-license and add it to the files dir
